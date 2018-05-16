@@ -1,0 +1,12 @@
+node('') {
+  stage 'buildInDevelopment'
+    openshiftBuild(namespace:'dev',buildConfig: 'absample', showBuildLogs: 'true')
+  stage 'deployInDevelopment'
+    openshiftDeploy(namespace:'dev',deploymentConfig: 'absample')
+    openshiftScale(namespace:'dev',deploymentConfig: 'absample',replicaCount: '5')
+  stage 'deployInQA'
+    input 'Proceeed ?'
+    openshiftTag(namespace: 'dev', sourceStream: 'absample',  sourceTag: 'latest', destinationStream: 'absample', destinationTag: 'promoteToQA')
+    openshiftDeploy(namespace:'qa',deploymentConfig: 'absample')
+    openshiftScale(namespace:'qa',deploymentConfig: 'absample',replicaCount: '5')
+}
